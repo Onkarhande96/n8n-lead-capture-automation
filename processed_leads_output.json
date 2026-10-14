@@ -1,0 +1,35 @@
+[
+  {
+    "lead_id": "LD-984133",
+    "name": "Vikas Jadhav",
+    "email": "vikas.j@example.com",
+    "phone": "+919823456789",
+    "service": "E-Commerce Website Development",
+    "budget": "₹45,000",
+    "priority": "HIGH PRIORITY 🔥",
+    "received_at": "2026-10-12 12:56:24",
+    "whatsapp_one_click": "https://wa.me/919823456789?text=Hello%20Vikas Jadhav,%20we%20received%20your%20inquiry%20regarding%20E-Commerce Website Development."
+  },
+  {
+    "lead_id": "LD-984133",
+    "name": "Sneha Shinde",
+    "email": "sneha.shinde@business.in",
+    "phone": "+919123456780",
+    "service": "Social Media Marketing",
+    "budget": "₹12,000",
+    "priority": "Standard Lead 📌",
+    "received_at": "2026-10-12 12:56:24",
+    "whatsapp_one_click": "https://wa.me/919123456780?text=Hello%20Sneha Shinde,%20we%20received%20your%20inquiry%20regarding%20Social Media Marketing."
+  },
+  {
+    "lead_id": "LD-984133",
+    "name": "Rajesh Khanna",
+    "email": "rajesh@khannatraders.com",
+    "phone": "+918877665544",
+    "service": "Automation Workflow Setup",
+    "budget": "₹25,000",
+    "priority": "Medium Priority ⚡",
+    "received_at": "2026-10-12 12:56:24",
+    "whatsapp_one_click": "https://wa.me/918877665544?text=Hello%20Rajesh Khanna,%20we%20received%20your%20inquiry%20regarding%20Automation Workflow Setup."
+  }
+]

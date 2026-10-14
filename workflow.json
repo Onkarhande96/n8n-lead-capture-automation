@@ -1,0 +1,100 @@
+{
+  "name": "Instant Lead Capture & Multi-Channel Alert Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook - Inbound Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 300],
+      "webhookId": "lead-intake-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Extract incoming payload\nconst body = $input.first().json.body || $input.first().json;\n\n// 2. Data Cleaning & Normalization\nconst rawName = (body.name || 'Valued Lead').trim();\nconst cleanName = rawName.replace(/\\b\\w/g, char => char.toUpperCase());\n\nconst rawEmail = (body.email || '').trim().toLowerCase();\nconst rawPhone = (body.phone || '').toString().replace(/[^0-9]/g, '');\nconst cleanPhone = rawPhone.length === 10 ? '91' + rawPhone : rawPhone;\n\nconst service = body.service || 'General Inquiry';\nconst budget = Number(body.budget) || 0;\n\n// 3. Lead Scoring & Prioritization\nlet priority = 'Standard Lead 📌';\nif (budget >= 30000) {\n  priority = 'HIGH PRIORITY 🔥';\n} else if (budget >= 15000) {\n  priority = 'Medium Priority ⚡';\n}\n\n// 4. Timestamp & Tracking ID\nconst leadId = 'LD-' + Date.now().toString().slice(-6);\nconst receivedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);\n\nreturn {\n  lead_id: leadId,\n  name: cleanName,\n  email: rawEmail,\n  phone: cleanPhone,\n  service: service,\n  budget: budget,\n  priority: priority,\n  received_at: receivedAt,\n  whatsapp_link: `https://wa.me/${cleanPhone}?text=Hello%20${encodeURIComponent(cleanName)},%20thank%20you%20for%20contacting%20us.`\n};"
+      },
+      "id": "2",
+      "name": "Transform & Score Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData"
+        },
+        "options": {}
+      },
+      "id": "3",
+      "name": "Google Sheets - Log Lead",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_OR_GROUP_ID",
+        "text": "=🚨 *NEW LEAD RECEIVED!* 🚨\n\n🆔 *Lead ID:* {{ $json.lead_id }}\n👤 *Name:* {{ $json.name }}\n💼 *Service:* {{ $json.service }}\n💰 *Budget:* ₹{{ $json.budget }}\n🏷️ *Priority:* {{ $json.priority }}\n\n📞 *Contact Info:*\n• Phone: +{{ $json.phone }}\n• Email: {{ $json.email }}\n\n💬 *Quick Action:* [Chat on WhatsApp]({{ $json.whatsapp_link }})",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "4",
+      "name": "Telegram - Instant Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [680, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Inbound Lead": {
+      "main": [
+        [
+          {
+            "node": "Transform & Score Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform & Score Lead": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Log Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram - Instant Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
